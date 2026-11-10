@@ -1,3 +1,2 @@
-wmi
-psutil
+psutil>=6.0.0
 requests

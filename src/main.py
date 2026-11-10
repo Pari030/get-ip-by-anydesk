@@ -1,19 +1,17 @@
 import os
 import sys
 import ipaddress
-import wmi
 import psutil
 import requests
 
 def get_ips() -> list:
-    wmi_obj = wmi.WMI()
     ips = []
 
     # Iterating through all the running processes
-    for process in wmi_obj.Win32_Process():
+    for process in psutil.process_iter(['name']):
         try:
-            if 'anydesk' in process.Name.lower():
-                for conn in psutil.Process(process.ProcessId).connections():
+            if 'anydesk' in (process.info['name'] or '').lower():
+                for conn in process.net_connections():
                     if conn.status in ('SYN_SENT', 'ESTABLISHED') and conn.raddr:  # Only connection packets
                         conn_ip = conn.raddr.ip
                         if conn.raddr.port != 80:
