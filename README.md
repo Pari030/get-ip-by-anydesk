@@ -3,8 +3,8 @@
 >You can run the program before open anydesk.
 
 ## Download Tutorial [git needed]
-1. `git clone https://github.com/Pari030/GetIpByAnydesk`
-0. `cd GetIpByAnydesk`
+1. `git clone https://github.com/Pari030/get-ip-by-anydesk`
+0. `cd get-ip-by-anydesk`
 0. `py -m pip install -r requirements.txt`
 0. `cd src`
 0. `py main.py`
