@@ -1,25 +1,25 @@
 import os
 import sys
-import wmi
+import ipaddress
 import psutil
 import requests
 
 def get_ips() -> list:
-    wmi_obj = wmi.WMI()
     ips = []
 
     # Iterating through all the running processes
-    for process in wmi_obj.Win32_Process():
+    for process in psutil.process_iter(['name']):
         try:
-            if 'anydesk' in process.Name.lower():
-                for conn in psutil.Process(process.ProcessId).connections():
-                    if conn.status in ('SYN_SENT', 'ESTABLISHED'):  # Only connection packets
+            if 'anydesk' in (process.info['name'] or '').lower():
+                for conn in process.net_connections():
+                    if conn.status in ('SYN_SENT', 'ESTABLISHED') and conn.raddr:  # Only connection packets
                         conn_ip = conn.raddr.ip
                         if conn.raddr.port != 80:
-                            if not conn_ip.startswith('192.168.'):
+                            ip = ipaddress.ip_address(conn_ip)
+                            if not (getattr(ip, 'ipv4_mapped', None) or ip).is_private:
                                 if not conn_ip in ips:
                                     ips.append(conn_ip)
-        except psutil.NoSuchProcess:
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
 
     return ips
